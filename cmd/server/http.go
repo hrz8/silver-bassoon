@@ -46,6 +46,7 @@ func deliver(db *pgx.Conn) chan error {
 					IsSearchTerm:    false,
 					SearchTerm:      &keyword,
 					UsingDateFilter: false,
+					UsingPagination: false,
 					PageNumber:      1,
 				})
 				if err != nil {

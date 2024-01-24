@@ -55,7 +55,8 @@ GROUP BY
     o.created_at
 ORDER BY
     o.created_at DESC
-LIMIT 5 OFFSET ($6- 1) * 5
+LIMIT CASE WHEN $6::bool THEN 5 END
+OFFSET CASE WHEN $6::bool THEN ($7- 1) * 5 END
 `
 
 type GetCustomerOrdersParams struct {
@@ -64,6 +65,7 @@ type GetCustomerOrdersParams struct {
 	UsingDateFilter bool             `db:"using_date_filter" json:"using_date_filter"`
 	StartDate       pgtype.Timestamp `db:"start_date" json:"start_date"`
 	EndDate         pgtype.Timestamp `db:"end_date" json:"end_date"`
+	UsingPagination bool             `db:"using_pagination" json:"using_pagination"`
 	PageNumber      interface{}      `db:"-page_number" json:"-page_number"`
 }
 
@@ -83,6 +85,7 @@ func (q *Queries) GetCustomerOrders(ctx context.Context, arg *GetCustomerOrdersP
 		arg.UsingDateFilter,
 		arg.StartDate,
 		arg.EndDate,
+		arg.UsingPagination,
 		arg.PageNumber,
 	)
 	if err != nil {

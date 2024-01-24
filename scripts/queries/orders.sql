@@ -47,5 +47,6 @@ GROUP BY
     o.created_at
 ORDER BY
     o.created_at DESC
-LIMIT 5 OFFSET (@page_number - 1) * 5
+LIMIT CASE WHEN @using_pagination::bool THEN 5 END
+OFFSET CASE WHEN @using_pagination::bool THEN (@page_number - 1) * 5 END
 ;
