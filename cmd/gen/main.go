@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/hrz8/silver-bassoon/pkg/gen"
+	"github.com/hrz8/silver-bassoon/pkg/logger"
 
 	_ "github.com/lib/pq"
 )
@@ -114,8 +115,8 @@ func writeToFile(sqlContent string, newFile bool) {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("new migration file created: %s\n", filePath)
+		logger.Info("new migration file created: %s\n", filePath)
 	} else {
-		fmt.Printf("migration file already exists: %s\n", filePath)
+		logger.Info("migration file already exists: %s\n", filePath)
 	}
 }

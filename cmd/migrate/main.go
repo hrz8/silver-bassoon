@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"embed"
-	"fmt"
 
+	"github.com/hrz8/silver-bassoon/pkg/logger"
 	"github.com/hrz8/silver-bassoon/pkg/migrator"
 )
 
@@ -29,5 +29,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("migrations done!")
+	logger.Info("migrations done!")
 }
