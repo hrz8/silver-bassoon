@@ -82,3 +82,48 @@ go run cmd/migrate/main.go
 ### Congrats!
 
 Congratulation! Your database initialization has finished 🚀
+
+## SQLC
+
+By using [sqlc](https://sqlc.dev/), this app does not require you to write the models mapping of your table into Golang native structs yourself.
+
+Moreover, you can write a raw SQL query in a `.sql` file and convert it into a Golang native `func` by placing the `.sql` file under the `scripts/queries` directory.
+
+```bash
+├── cmd
+│   ├── migrate
+│   │   ├── main.go
+│   │   └── migrations
+│   │       └── 00_initial.up.sql
+├── scripts
+│   └── queries
+│       ├── order_items.sql (EXAMPLE)
+│       └── orders.sql (EXAMPLE)
+```
+
+### Generate `struct` as models and `func` as queries
+
+Since you already have your migration and query files, the next step is to generate the `struct` and `func` for it by running this command:
+
+```bash
+go run cmd/sqlc/main.go
+```
+
+This will generate `.go` files with an expected output like this:
+
+```bash
+├── internal
+│   └── repo
+│       └── psql
+│           ├── db.go
+│           ├── models.go
+│           ├── order_items.sql.go
+│           ├── orders.sql.go
+│           └── querier.go
+```
+
+You can read the file as well by:
+
+```bash
+cat internal/repo/psql/models.go
+```
