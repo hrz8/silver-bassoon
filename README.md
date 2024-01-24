@@ -78,3 +78,7 @@ After migration file (`.sql`) created, next you need to run the migration. To ru
 ```bash
 go run cmd/migrate/main.go 
 ```
+
+### Congrats!
+
+Congratulation! Your database initialization has finished 🚀
