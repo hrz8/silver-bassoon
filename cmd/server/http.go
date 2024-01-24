@@ -39,8 +39,16 @@ func deliver(db *pgx.Conn) chan error {
 			if r.Method == http.MethodGet {
 				w.Header().Set("Content-Type", "application/json")
 
+				keyword := fmt.Sprintf("%%%s%%", "")
+
 				queries := psqlrepo.New(db)
-				items, err := queries.GetOrderItems(ctx)
+				items, err := queries.GetCustomerOrders(ctx, &psqlrepo.GetCustomerOrdersParams{
+					IsSearchTerm:    false,
+					SearchTerm:      &keyword,
+					UsingDateFilter: false,
+					UsingPagination: false,
+					PageNumber:      1,
+				})
 				if err != nil {
 					http.Error(w, "", http.StatusBadRequest)
 					return
@@ -60,7 +68,6 @@ func deliver(db *pgx.Conn) chan error {
 	err := make(chan error, 1)
 
 	go func() {
-		fmt.Println("start")
 		err <- server.ListenAndServe()
 	}()
 

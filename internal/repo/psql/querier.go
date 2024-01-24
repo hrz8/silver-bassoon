@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	GetCustomerOrders(ctx context.Context, arg *GetCustomerOrdersParams) ([]*GetCustomerOrdersRow, error)
 	GetOrderItems(ctx context.Context) ([]*OrderItem, error)
 	GetOrders(ctx context.Context) ([]*Order, error)
 }

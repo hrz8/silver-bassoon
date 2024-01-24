@@ -7,7 +7,111 @@ package psqlrepo
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const getCustomerOrders = `-- name: GetCustomerOrders :many
+SELECT
+    o.order_name AS "order_name",
+    cc.company_name AS "customer_company_name",
+    c.name AS "customer_name",
+    TO_CHAR(o.created_at AT TIME ZONE 'Australia/Melbourne', 'Mon DDth, HH:MI AM') AS "order_date",
+    CASE WHEN POSITION('.' IN TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')) > 0
+        THEN COALESCE('$' || TRIM(TRAILING '.' FROM TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')), '-')
+        ELSE COALESCE('$' || TO_CHAR(SUM(d.delivered_quantity), 'FM999999'), '-')
+    END AS "delivered_amount",
+    CASE WHEN POSITION('.' IN TO_CHAR(SUM(oi.price_per_unit * oi.quantity), 'FM999999.99')) > 0
+        THEN COALESCE('$' || TRIM(TRAILING '.' FROM TO_CHAR(SUM(oi.price_per_unit * oi.quantity), 'FM999999.99')), '-')
+        ELSE COALESCE('$' || TO_CHAR(SUM(oi.price_per_unit * oi.quantity), 'FM999999'), '-')
+    END AS "total_amount"
+FROM
+    orders o
+JOIN customers c ON o.customer_id = c.user_id
+JOIN customer_companies cc ON c.company_id = cc.company_id
+LEFT JOIN order_items oi ON o.id = oi.order_id
+LEFT JOIN deliveries d ON oi.id = d.order_item_id
+WHERE
+    1=1 AND
+    (
+        CASE WHEN $1::bool THEN
+            o.order_name ILIKE $2 OR
+            oi.product ILIKE $2
+        ELSE
+            TRUE
+        END
+    )
+    AND (
+        CASE WHEN $3::bool THEN
+            o.created_at >= $4 AND o.created_at <= $5
+        ELSE
+            TRUE
+        END
+    )
+GROUP BY
+    o.order_name,
+    cc.company_name,
+    c.name,
+    o.created_at
+ORDER BY
+    o.created_at DESC
+LIMIT CASE WHEN $6::bool THEN 5 END
+OFFSET CASE WHEN $6::bool THEN ($7- 1) * 5 END
+`
+
+type GetCustomerOrdersParams struct {
+	IsSearchTerm    bool             `db:"is_search_term" json:"is_search_term"`
+	SearchTerm      *string          `db:"search_term" json:"search_term"`
+	UsingDateFilter bool             `db:"using_date_filter" json:"using_date_filter"`
+	StartDate       pgtype.Timestamp `db:"start_date" json:"start_date"`
+	EndDate         pgtype.Timestamp `db:"end_date" json:"end_date"`
+	UsingPagination bool             `db:"using_pagination" json:"using_pagination"`
+	PageNumber      interface{}      `db:"-page_number" json:"-page_number"`
+}
+
+type GetCustomerOrdersRow struct {
+	OrderName           *string     `db:"order_name" json:"order_name"`
+	CustomerCompanyName string      `db:"customer_company_name" json:"customer_company_name"`
+	CustomerName        string      `db:"customer_name" json:"customer_name"`
+	OrderDate           string      `db:"order_date" json:"order_date"`
+	DeliveredAmount     interface{} `db:"delivered_amount" json:"delivered_amount"`
+	TotalAmount         interface{} `db:"total_amount" json:"total_amount"`
+}
+
+func (q *Queries) GetCustomerOrders(ctx context.Context, arg *GetCustomerOrdersParams) ([]*GetCustomerOrdersRow, error) {
+	rows, err := q.db.Query(ctx, getCustomerOrders,
+		arg.IsSearchTerm,
+		arg.SearchTerm,
+		arg.UsingDateFilter,
+		arg.StartDate,
+		arg.EndDate,
+		arg.UsingPagination,
+		arg.PageNumber,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetCustomerOrdersRow
+	for rows.Next() {
+		var i GetCustomerOrdersRow
+		if err := rows.Scan(
+			&i.OrderName,
+			&i.CustomerCompanyName,
+			&i.CustomerName,
+			&i.OrderDate,
+			&i.DeliveredAmount,
+			&i.TotalAmount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getOrders = `-- name: GetOrders :many
 SELECT id, created_at, order_name, customer_id FROM orders
