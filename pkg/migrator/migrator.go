@@ -21,6 +21,7 @@ func NewMigrator(sqlFiles embed.FS, dirName string) *Migrator {
 	if err != nil {
 		panic(err)
 	}
+
 	return &Migrator{
 		srcDriver: d,
 	}

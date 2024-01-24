@@ -5,7 +5,7 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/hrz8/silver-bassoon/internal/migrator"
+	"github.com/hrz8/silver-bassoon/pkg/migrator"
 )
 
 const migrationsDir = "migrations"
