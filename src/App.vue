@@ -1,36 +1,20 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue';
+import {ref} from 'vue';
+
+import SplashScreen from './components/SplashScreen.vue';
+import DashboardLayout from './layouts/DashboardLayout.vue';
+
+const isErrorPage = window.location.pathname.startsWith('/error');
+const initialized = ref(isErrorPage);
+
+setTimeout(() => {
+  initialized.value = true;
+}, 1000);
 </script>
 
 <template>
-  <div>
-    <div>
-      <a
-        href="https://vitejs.dev"
-        target="_blank"
-      >
-      </a>
-      <a
-        href="https://vuejs.org/"
-        target="_blank"
-      >
-      </a>
-    </div>
-    <HelloWorld msg="Vite + Vue" />
-  </div>
+  <el-config-provider>
+    <dashboard-layout v-if="initialized"></dashboard-layout>
+    <splash-screen v-else></splash-screen>
+  </el-config-provider>
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

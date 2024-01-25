@@ -18,11 +18,19 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": [
+      "element-plus/global.d.ts"
+    ]
+  },
+  "vueCompilerOptions": {
+    "target": 3
   },
   "include": [
+    "*.d.ts",
     "src/*.vue",
     "src/**/*.ts",
+    "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue"
   ],
