@@ -17,7 +17,6 @@
   ],
   "ignorePatterns": ["index.html"],
   "parser": "vue-eslint-parser",
-  // "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": ["tsconfig.json", "tsconfig.node.json"],
     "parser": "@typescript-eslint/parser",
@@ -94,10 +93,7 @@
     "@typescript-eslint/no-unused-expressions": "error",
     "@typescript-eslint/prefer-for-of": "error",
     "@typescript-eslint/prefer-function-type": "error",
-    "@typescript-eslint/quotes": [
-      "error",
-      "single"
-    ],
+    "@typescript-eslint/quotes": "off",
     "@typescript-eslint/triple-slash-reference": [
       "error",
       {
