@@ -1,35 +1,48 @@
 <script setup lang="ts">
 import {Search} from '@element-plus/icons-vue';
-import {Ref, ref} from 'vue';
+import {refDebounced} from '@vueuse/core';
+import {computed, Ref, ref, watchEffect} from 'vue';
 
 import {Order} from '../types/order';
+import {Response} from '../types/response';
+import {Server} from '../utils/axios';
 
-const keyword = ref(''); // encodeURIComponent
+const keyword = ref('');
+const keywordDebounced = refDebounced(keyword, 1000);
+
 const filterDate = ref('');
 const loading = ref(true);
-const orders: Ref<Order[]> = ref([
-  {
-    order_name: '#C19190 Christmas',
-    customer_company_name: 'Sony Ericson',
-    customer_name: 'Dr. Harold Senger',
-    order_date: 'Apr 23rd, 4:18 AM',
-    delivered_amount: '$9.11',
-    total_amount: '$9.11',
-  },
-  {
-    order_name: '#D7F7DB Christmas',
-    customer_company_name: 'Comedy Central Inc',
-    customer_name: 'Waylon Baehan V',
-    order_date: 'Apr 23rd, 4:20 AM',
-    delivered_amount: '$9.11',
-    total_amount: '$9.11',
-  },
-] satisfies Order[]);
-
-// Page/Meta
 const currentPage = ref(1);
 const pageSize = ref(5);
-const totalData = ref(30);
+const totalData = ref(0);
+const orders: Ref<Order[]> = ref([] satisfies Order[]);
+
+const queryParams = computed(() => {
+  return new URLSearchParams({
+    page: String(currentPage.value),
+    limit: String(pageSize.value),
+    keyword: keywordDebounced.value,
+    start_date: '',
+    end_date: '',
+  }).toString();
+});
+
+const fetchOrders = async (): Promise<void> => {
+  try {
+    const res = await Server.get<Response<Order[]>>(
+      `api/orders?${queryParams.value}`,
+    );
+
+    orders.value = res.data.result;
+    totalData.value = res.data.meta?.total ?? 0;
+  } catch (error) {
+    console.error('error fetching orders:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+watchEffect(() => void fetchOrders());
 
 const handleSizeChange = (val: number): void => {
   pageSize.value = val;
@@ -37,10 +50,6 @@ const handleSizeChange = (val: number): void => {
 const handleCurrentChange = (val: number): void => {
   currentPage.value = val;
 };
-
-setTimeout(() => {
-  loading.value = false;
-}, 2000);
 </script>
 
 <template>
