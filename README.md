@@ -8,7 +8,23 @@ After cloning the repo, you need to install Go dependencies. Run the following c
 go mod tidy
 ```
 
-## Initialize the Database
+## Initialize the Database (Short Mode)
+
+To initiate the Database from `.csv` using script (Golang), run this:
+
+```bash
+DATABASE_URL=postgres://user:password@localhost:5432/dbname ./initdb.sh
+```
+
+## Initialize the Database (Advance Mode - Recommended)
+
+_NOTE: If you've done the short mode, you need to cleanup your db first, and then run this:_
+
+```bash
+./cleandb.sh
+```
+
+### Start!
 
 The provided `.csv` files are located in the `cmd/gen/files` directory. Additionally, all generated `.sql` files can be found in the `cmd/migrate/migrations` directory.
 
@@ -76,7 +92,7 @@ Note: This process may take a longer time as it will generate the provided seed 
 After migration file (`.sql`) created, next you need to run the migration. To run migrations, run:
 
 ```bash
-go run cmd/migrate/main.go 
+go run cmd/migrate/main.go
 ```
 
 ### Congrats!
