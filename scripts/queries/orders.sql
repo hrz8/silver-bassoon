@@ -1,14 +1,12 @@
 -- name: GetOrders :many
-SELECT * FROM orders
-WHERE 1=1
-;
+SELECT * FROM orders WHERE 1 = 1;
 
 -- name: GetCustomerOrders :many
 SELECT
     o.order_name AS "order_name",
     cc.company_name AS "customer_company_name",
     c.name AS "customer_name",
-    TO_CHAR(o.created_at AT TIME ZONE 'Australia/Melbourne', 'Mon DDth, HH:MI AM') AS "order_date",
+    TO_CHAR(o.created_at AT TIME ZONE @time_zone::text, 'Mon DDth, HH:MI AM') AS "order_date",
     CASE WHEN POSITION('.' IN TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')) > 0
         THEN COALESCE('$' || TRIM(TRAILING '.' FROM TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')), '-')
         ELSE COALESCE('$' || TO_CHAR(SUM(d.delivered_quantity), 'FM999999'), '-')
@@ -35,7 +33,8 @@ WHERE
     )
     AND (
         CASE WHEN @using_date_filter::bool THEN
-            o.created_at >= @start_date AND o.created_at <= @end_date
+            o.created_at AT TIME ZONE @time_zone::text >= @start_date AND
+            o.created_at AT TIME ZONE @time_zone::text <= @end_date
         ELSE
             TRUE
         END
@@ -47,6 +46,6 @@ GROUP BY
     o.created_at
 ORDER BY
     o.created_at DESC
-LIMIT CASE WHEN @using_pagination::bool THEN 5 END
-OFFSET CASE WHEN @using_pagination::bool THEN (@page_number - 1) * 5 END
+LIMIT CASE WHEN @using_pagination::bool THEN @page_size::int END
+OFFSET CASE WHEN @using_pagination::bool THEN (@page_number - 1) * @page_size::int END
 ;

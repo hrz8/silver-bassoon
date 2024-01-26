@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/hrz8/silver-bassoon/pkg/logger"
-	"github.com/hrz8/silver-bassoon/pkg/migrator"
+	Migrator "github.com/hrz8/silver-bassoon/pkg/migrator"
 )
 
 const migrationsDir = "migrations"
@@ -15,7 +15,7 @@ const migrationsDir = "migrations"
 var MigrationsFS embed.FS
 
 func main() {
-	migrator := migrator.NewMigrator(MigrationsFS, migrationsDir)
+	migrator := Migrator.NewMigrator(MigrationsFS, migrationsDir)
 
 	conn, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {

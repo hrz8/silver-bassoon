@@ -16,7 +16,7 @@ SELECT
     o.order_name AS "order_name",
     cc.company_name AS "customer_company_name",
     c.name AS "customer_name",
-    TO_CHAR(o.created_at AT TIME ZONE 'Australia/Melbourne', 'Mon DDth, HH:MI AM') AS "order_date",
+    TO_CHAR(o.created_at AT TIME ZONE $1::text, 'Mon DDth, HH:MI AM') AS "order_date",
     CASE WHEN POSITION('.' IN TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')) > 0
         THEN COALESCE('$' || TRIM(TRAILING '.' FROM TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')), '-')
         ELSE COALESCE('$' || TO_CHAR(SUM(d.delivered_quantity), 'FM999999'), '-')
@@ -34,16 +34,17 @@ LEFT JOIN deliveries d ON oi.id = d.order_item_id
 WHERE
     1=1 AND
     (
-        CASE WHEN $1::bool THEN
-            o.order_name ILIKE $2 OR
-            oi.product ILIKE $2
+        CASE WHEN $2::bool THEN
+            o.order_name ILIKE $3 OR
+            oi.product ILIKE $3
         ELSE
             TRUE
         END
     )
     AND (
-        CASE WHEN $3::bool THEN
-            o.created_at >= $4 AND o.created_at <= $5
+        CASE WHEN $4::bool THEN
+            o.created_at AT TIME ZONE $1::text >= $5 AND
+            o.created_at AT TIME ZONE $1::text <= $6
         ELSE
             TRUE
         END
@@ -55,11 +56,12 @@ GROUP BY
     o.created_at
 ORDER BY
     o.created_at DESC
-LIMIT CASE WHEN $6::bool THEN 5 END
-OFFSET CASE WHEN $6::bool THEN ($7- 1) * 5 END
+LIMIT CASE WHEN $7::bool THEN $9::int END
+OFFSET CASE WHEN $7::bool THEN ($8- 1) * $9::int END
 `
 
 type GetCustomerOrdersParams struct {
+	TimeZone        string           `db:"time_zone" json:"time_zone"`
 	IsSearchTerm    bool             `db:"is_search_term" json:"is_search_term"`
 	SearchTerm      *string          `db:"search_term" json:"search_term"`
 	UsingDateFilter bool             `db:"using_date_filter" json:"using_date_filter"`
@@ -67,6 +69,7 @@ type GetCustomerOrdersParams struct {
 	EndDate         pgtype.Timestamp `db:"end_date" json:"end_date"`
 	UsingPagination bool             `db:"using_pagination" json:"using_pagination"`
 	PageNumber      interface{}      `db:"-page_number" json:"-page_number"`
+	PageSize        int32            `db:"page_size" json:"page_size"`
 }
 
 type GetCustomerOrdersRow struct {
@@ -80,6 +83,7 @@ type GetCustomerOrdersRow struct {
 
 func (q *Queries) GetCustomerOrders(ctx context.Context, arg *GetCustomerOrdersParams) ([]*GetCustomerOrdersRow, error) {
 	rows, err := q.db.Query(ctx, getCustomerOrders,
+		arg.TimeZone,
 		arg.IsSearchTerm,
 		arg.SearchTerm,
 		arg.UsingDateFilter,
@@ -87,6 +91,7 @@ func (q *Queries) GetCustomerOrders(ctx context.Context, arg *GetCustomerOrdersP
 		arg.EndDate,
 		arg.UsingPagination,
 		arg.PageNumber,
+		arg.PageSize,
 	)
 	if err != nil {
 		return nil, err
@@ -114,8 +119,7 @@ func (q *Queries) GetCustomerOrders(ctx context.Context, arg *GetCustomerOrdersP
 }
 
 const getOrders = `-- name: GetOrders :many
-SELECT id, created_at, order_name, customer_id FROM orders
-WHERE 1=1
+SELECT id, created_at, order_name, customer_id FROM orders WHERE 1 = 1
 `
 
 func (q *Queries) GetOrders(ctx context.Context) ([]*Order, error) {
