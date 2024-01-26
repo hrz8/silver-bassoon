@@ -101,8 +101,8 @@ func writeToFile(sqlContent string, newFile bool) {
 		filePath = filepath.Join(migrationsPath, generateMigrationFilePrefix())
 	}
 
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		if err := os.WriteFile(filePath, []byte(sqlContent), 0644); err != nil {
+	if _, err = os.Stat(filePath); os.IsNotExist(err) {
+		if err = os.WriteFile(filePath, []byte(sqlContent), 0644); err != nil {
 			log.Fatal(err)
 		}
 

@@ -4,7 +4,7 @@ import {Ref, ref} from 'vue';
 
 import {Order} from '../types/order';
 
-const keyword = ref('');
+const keyword = ref(''); // encodeURIComponent
 const filterDate = ref('');
 const loading = ref(true);
 const orders: Ref<Order[]> = ref([
