@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"embed"
+	"os"
 
 	"github.com/hrz8/silver-bassoon/pkg/logger"
 	"github.com/hrz8/silver-bassoon/pkg/migrator"
@@ -16,8 +17,7 @@ var MigrationsFS embed.FS
 func main() {
 	migrator := migrator.NewMigrator(MigrationsFS, migrationsDir)
 
-	connectionStr := "postgres://postgres:toor@localhost:5432/silver_bassoon?sslmode=disable"
-	conn, err := sql.Open("postgres", connectionStr)
+	conn, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		panic(err)
 	}

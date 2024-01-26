@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"embed"
 	"flag"
 	"fmt"
@@ -37,14 +36,6 @@ func main() {
 	flag.BoolVar(&newFile, "new", false, "generate new migration file")
 
 	flag.Parse()
-
-	connectionStr := "postgres://postgres:toor@localhost:5432/silver_bassoon?sslmode=disable"
-	conn, err := sql.Open("postgres", connectionStr)
-	if err != nil {
-		panic(err)
-	}
-
-	defer conn.Close()
 
 	insert := insertTables(csvFiles)
 	ddl := createTables(csvFiles, insert)

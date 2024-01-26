@@ -54,3 +54,5 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+
+_migrations_back/
