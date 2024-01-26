@@ -8,6 +8,7 @@ import (
 	"github.com/rs/cors"
 
 	OrderUsecase "github.com/hrz8/silver-bassoon/internal/domain/order/usecase"
+	"github.com/hrz8/silver-bassoon/pkg/logger"
 )
 
 func start(db *pgx.Conn) chan error {
@@ -31,14 +32,15 @@ func deliver(db *pgx.Conn) chan error {
 	})
 
 	router := http.NewServeMux()
-	router.Handle("/", c.Handler(http.HandlerFunc(OrderUsecase.GetCustomerOrders(db))))
+	router.Handle("/api/orders", c.Handler(http.HandlerFunc(OrderUsecase.GetCustomerOrders(db))))
 
-	server := &http.Server{Addr: fmt.Sprintf("127.0.0.1:%s", "3900")}
+	server := &http.Server{Addr: fmt.Sprintf("127.0.0.1:%s", "3980")}
 	server.Handler = router
 
 	err := make(chan error, 1)
 
 	go func() {
+		logger.Info("http start at :3980")
 		err <- server.ListenAndServe()
 	}()
 

@@ -1,0 +1,41 @@
+# -- dependencies installing stage --
+FROM golang:1.21.3-alpine3.18 AS install_stage
+
+# setup container
+RUN apk update
+RUN apk add --no-cache git ca-certificates gcc musl-dev
+
+# set working directory
+WORKDIR /go/src
+
+# install dependencies
+ADD go.mod go.sum ./
+RUN go mod download
+
+# -- build stage --
+FROM install_stage AS build_stage
+
+# set working directory
+WORKDIR /app
+
+# build binary file
+COPY . .
+RUN go build -o bin/server cmd/server/*.go
+
+# -- run stage --
+FROM alpine:3.18.5
+
+# setup container
+RUN apk update
+RUN apk add --no-cache ca-certificates tzdata
+
+# set working directory
+WORKDIR /app
+
+# copy binary
+RUN mkdir -p /app/bin
+COPY --from=build_stage /app/bin/server bin/server
+EXPOSE 3980
+
+# container run command
+CMD ["./bin/server"]
