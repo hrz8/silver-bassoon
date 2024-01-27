@@ -119,9 +119,9 @@ VITE_SERVER_URL=http://localhost:3980 yarn start
 
 ### Dockering 🐳
 
-**_NOTE: this steps below is assume that you are already have a running PostgreSQL instance._**
-
 #### Using Dockerfile
+
+**_NOTE: this steps below is assume that you are already have a running PostgreSQL instance._**
 
 Run the migration (skip if already done):
 
