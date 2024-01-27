@@ -17,9 +17,9 @@ SELECT
     cc.company_name AS "customer_company_name",
     c.name AS "customer_name",
     TO_CHAR(o.created_at AT TIME ZONE $1::text, 'Mon DDth, HH:MI AM') AS "order_date",
-    CASE WHEN POSITION('.' IN TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')) > 0
-        THEN COALESCE('$' || TRIM(TRAILING '.' FROM TO_CHAR(SUM(d.delivered_quantity), 'FM999999.99')), '-')
-        ELSE COALESCE('$' || TO_CHAR(SUM(d.delivered_quantity), 'FM999999'), '-')
+    CASE WHEN POSITION('.' IN TO_CHAR(SUM(oi.price_per_unit * d.delivered_quantity), 'FM999999.99')) > 0
+        THEN COALESCE('$' || TRIM(TRAILING '.' FROM TO_CHAR(SUM(oi.price_per_unit * d.delivered_quantity), 'FM999999.99')), '-')
+        ELSE COALESCE('$' || TO_CHAR(SUM(oi.price_per_unit * d.delivered_quantity), 'FM999999'), '-')
     END AS "delivered_amount",
     CASE WHEN POSITION('.' IN TO_CHAR(SUM(oi.price_per_unit * oi.quantity), 'FM999999.99')) > 0
         THEN COALESCE('$' || TRIM(TRAILING '.' FROM TO_CHAR(SUM(oi.price_per_unit * oi.quantity), 'FM999999.99')), '-')

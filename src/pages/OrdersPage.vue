@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {Search} from '@element-plus/icons-vue';
 import {refDebounced} from '@vueuse/core';
+import _ from 'lodash';
 import {computed, Ref, ref, watchEffect} from 'vue';
 
 import {Order} from '../types/order';
 import {Response} from '../types/response';
 import {Server} from '../utils/axios';
+import {sumAndFormat} from '../utils/formatter';
 
 const keyword = ref('');
 const keywordDebounced = refDebounced(keyword, 1000);
@@ -15,23 +17,39 @@ const loading = ref(true);
 const currentPage = ref(1);
 const pageSize = ref(5);
 const totalData = ref(0);
+const totalAmount = ref('$0');
 const orders: Ref<Order[]> = ref([] satisfies Order[]);
+
+function parseDate(index: '0' | '1'): string {
+  const dt = _.get(filterDate.value, index, '');
+
+  if (dt === '') {
+    return '';
+  }
+
+  return index === '0' ? `${dt}T00:00:00.000` : `${dt}T23:59:59.999`;
+}
 
 const queryParams = computed(() => {
   return new URLSearchParams({
     page: String(currentPage.value),
     limit: String(pageSize.value),
     keyword: keywordDebounced.value,
-    start_date: '',
-    end_date: '',
+    start_date: parseDate('0'),
+    end_date: parseDate('1'),
   }).toString();
 });
 
 const fetchOrders = async (): Promise<void> => {
+  console.info(filterDate);
   try {
     const res = await Server.get<Response<Order[]>>(
       `api/orders?${queryParams.value}`,
     );
+
+    const amounts = _.map(res.data.result, 'total_amount');
+
+    totalAmount.value = sumAndFormat(amounts);
 
     orders.value = res.data.result;
     totalData.value = res.data.meta?.total ?? 0;
@@ -82,11 +100,14 @@ const handleCurrentChange = (val: number): void => {
         start-placeholder="Start date"
         end-placeholder="End date"
         size="large"
+        value-format="YYYY-MM-DD"
       />
     </div>
 
     <!-- Total Amount -->
-    <span class="text-secondary">Total amount: <strong>$198.23</strong></span>
+    <span class="text-secondary"
+      >Total amount: <strong>{{ totalAmount }}</strong></span
+    >
 
     <!-- Table -->
     <div class="mt-5">

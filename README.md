@@ -1,6 +1,24 @@
 # silver-bassoon
 
-## Setup
+## Whats going on here?
+
+- [Stack used 🥞](#stack-used-)
+- [Setup for Local 🛠](#setup-)
+- [Migration and ORM](#about-sqlc)
+  - [SQLC](#about-sqlc)
+- [How to Run 👟](#how-to-run-)
+  - [Run Locally 🏃](#run-locally-)
+  - [Dockering 🐳](#dockering-)
+
+## Stack used 🥞
+
+- PostgreSQL
+- Golang 1.21
+- SQLC ([jump](#about-sqlc))
+- VueJS
+- Vite (bundler)
+
+## Setup 🛠
 
 After cloning the repo, you need to install Go dependencies. Run the following command:
 
@@ -8,98 +26,17 @@ After cloning the repo, you need to install Go dependencies. Run the following c
 go mod tidy
 ```
 
-## Initialize the Database (Short Mode)
-
-To initiate the Database from `.csv` using script (Golang), run this:
+Then, install NodeJS dependencies. Run the following command:
 
 ```bash
-DATABASE_URL=postgres://user:password@localhost:5432/dbname ./initdb.sh
+yarn install
 ```
 
-## Initialize the Database (Advance Mode - Recommended)
+## Initialize the Database
 
-_NOTE: If you've done the short mode, you need to cleanup your db first, and then run this:_
+For database initialization section you can found it here: [Click the link](DATABASE_INITIALIZATION.md)
 
-```bash
-./cleandb.sh
-```
-
-### Start!
-
-The provided `.csv` files are located in the `cmd/gen/files` directory. Additionally, all generated `.sql` files can be found in the `cmd/migrate/migrations` directory.
-
-```bash
-├── cmd
-│   ├── gen
-│   │   ├── files
-│   │   │   ├── customer_companies.csv
-│   │   │   ├── customers.csv
-│   │   │   ├── deliveries.csv
-│   │   │   ├── order_items.csv
-│   │   │   └── orders.csv
-│   │   └── main.go
-│   └── migrate
-│       ├── main.go
-│       └── migrations
-│           └── 00_initial.up.sql
-```
-
-### Generate `.sql` from `.csv`
-
-To generate the migration (`.sql` file), run:
-
-```bash
-go run cmd/gen/main.go
-```
-
-At this stage, you will be prompted with the message: `migration file already exists`. This is expected since, by default, the program checks for the existence of the default migration file first.
-
-To create a new migration file from the provided `.csv` files, use:
-
-```bash
-go run cmd/gen/main.go -new
-```
-
-Once the process done, you will got new file under `cmd/migrate/migrations` directory.
-
-```
-├── cmd
-│   ├── gen
-│   │   ...
-│   └── migrate
-│       ├── main.go
-│       └── migrations
-│           ├── 00_initial.up.sql
-│           └── 2024012XXXXXXX_initial.up.sql (NEW)
-```
-
-If you inspect the result of the generated `.sql` file, you'll notice that all columns are using `VARCHAR(255)` as the data type. This is intentional for simplicity. However, if you prefer to generate **well-defined** and **appropriate** data types, you can do so using OpenAI tools in the next step.
-
-### Generate Well-Defined `.sql`
-
-To enable this feature, first, you need to have an `OPEN AI KEY`. You can generate your own `KEY` from [here](https://platform.openai.com/account/api-keys).
-
-Once you have the `KEY`, run this command:
-
-```bash
-OPEN_AI_KEY=your-key go run cmd/gen/main.go -new
-```
-
-Note: This process may take a longer time as it will generate the provided seed data that will be inserted.
-
-### Run Migrations
-
-After migration file (`.sql`) created, next you need to run the migration. To run migrations, run:
-
-```bash
-go run cmd/migrate/main.go
-```
-
-### Congrats!
-
-Congratulation! Your database initialization has finished 🚀
-
-## SQLC
+## About SQLC
 
 By using [sqlc](https://sqlc.dev/), this app does not require you to write the models mapping of your table into Golang native structs yourself.
 
@@ -142,4 +79,98 @@ You can read the file as well by:
 
 ```bash
 cat internal/repo/psql/models.go
+```
+
+## How to Run 👟
+
+### Run Locally 🏃
+
+**_NOTE: If you've done `Database Initialization` steps from [here](DATABASE_INITIALIZATION.md), make sure to clean up the temporary files that generated in that step._**
+
+To run the app locally, you need to run migration first (can skip if you are from `Database Initialization` steps)
+
+```bash
+DATABASE_URL=postgres://user:password@ip:5432/dbname go run cmd/migrate/main.go
+```
+
+Then you can start the backend:
+
+```bash
+DATABASE_URL=postgres://user:password@ip:5432/dbname go run cmd/server/*.go
+# http start at :3980
+```
+
+Then, frontend:
+
+```bash
+VITE_SERVER_URL=http://localhost:3980 yarn start
+#    ┌──────────────────────────────────────┐
+#    │                                          │
+#    │   Serving!                               │
+#    │                                          │
+#    │   - Local:    http://localhost:8080      │
+#    │   - Network:  http://10.XX.XXX.XX:8080   │
+#    │                                          │
+#    │   Copied local address to clipboard!     │
+#    │                                          │
+#    └──────────────────────────────────────┘
+```
+
+### Dockering 🐳
+
+**\_NOTE: this steps below is assume that you are already have a running PostgreSQL instance.\_\_**
+
+#### Using Dockerfile
+
+Run the migration (skip if already done):
+
+```bash
+DATABASE_URL=postgres://user:password@ip:5432/dbname go run cmd/migrate/main.go
+```
+
+Build docker image for backend:
+
+```bash
+docker build \
+    -t silver-bassoon/backend \
+    -f Dockerfile.backend \
+    --no-cache .
+```
+
+Run backend container from created image:
+
+```bash
+docker run -d \
+    --name packform-be \
+    -e DATABASE_URL='postgres://user:password@ip:5432/silver_bassoon?sslmode=disable' \
+    -p 3980:3980 \
+    silver-bassoon/backend
+```
+
+Build docker image for frontend:
+
+```bash
+docker build \
+    -t silver-bassoon/frontend \
+    -f Dockerfile.frontend \
+    --build-arg server_url=http://localhost:3980 \
+    --build-arg use_browser_tz=false \
+    --no-cache .
+```
+
+Run frontend container from created image:
+
+```bash
+docker run -d \
+    --name packform-fe \
+    -p 8080:80 \
+    silver-bassoon/frontend
+```
+
+#### Using docker-compose
+
+By using `docker compose`, you are not required to have PostgreSQL running, and you are not required to run the migration as well. Everything will be done automatically, encapsulated.
+
+```bash
+docker compose up -d
 ```

@@ -34,7 +34,7 @@ func deliver(db *pgx.Conn) chan error {
 	router := http.NewServeMux()
 	router.Handle("/api/orders", c.Handler(http.HandlerFunc(OrderUsecase.GetCustomerOrders(db))))
 
-	server := &http.Server{Addr: fmt.Sprintf("127.0.0.1:%s", "3980")}
+	server := &http.Server{Addr: fmt.Sprintf("0.0.0.0:%s", "3980")}
 	server.Handler = router
 
 	err := make(chan error, 1)
