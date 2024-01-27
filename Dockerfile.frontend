@@ -4,6 +4,14 @@ FROM node:20-alpine AS builder
 # setup
 RUN apk add --no-cache git
 
+# arguments needed
+ARG server_url
+ARG use_browser_tz
+
+# expose env vars to the finished cotainer
+ENV VITE_SERVER_URL=$server_url
+ENV VITE_USE_BROWSER_TZ=$VITE_USE_BROWSER_TZ
+
 # deps installationn
 WORKDIR /app
 COPY package.json yarn.lock ./

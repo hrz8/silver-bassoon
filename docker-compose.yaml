@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: silver-bassoon-postgres
+    environment:
+      POSTGRES_DB: silver_bassoon
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    # ports:
+    #   - '5432:5432'
+    networks:
+      - silver-bassoon-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend_compose
+    image: silver-bassoon/backend
+    container_name: silver-bassoon-backend
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/silver_bassoon?sslmode=disable
+    ports:
+      - '3980:3980'
+    depends_on:
+      - postgres
+    networks:
+      - silver-bassoon-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        server_url: http://localhost:3980
+        use_browser_tz: false
+    image: silver-bassoon/frontend
+    container_name: silver-bassoon-frontend
+    ports:
+      - '8080:80'
+    networks:
+      - silver-bassoon-network
+
+networks:
+  silver-bassoon-network:
+    driver: bridge

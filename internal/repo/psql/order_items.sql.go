@@ -10,8 +10,7 @@ import (
 )
 
 const getOrderItems = `-- name: GetOrderItems :many
-SELECT id, order_id, price_per_unit, quantity, product FROM order_items
-WHERE 1=1
+SELECT id, order_id, price_per_unit, quantity, product FROM order_items WHERE 1 = 1
 `
 
 func (q *Queries) GetOrderItems(ctx context.Context) ([]*OrderItem, error) {
