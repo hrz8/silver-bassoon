@@ -4,6 +4,7 @@
 
 - [Stack used 🥞](#stack-used-)
 - [Setup for Local 🛠](#setup-)
+  - [Database Initialization](DATABASE_INITIALIZATION.md)
 - [Migration and ORM](#about-sqlc)
   - [SQLC](#about-sqlc)
 - [How to Run 👟](#how-to-run-)
@@ -118,7 +119,7 @@ VITE_SERVER_URL=http://localhost:3980 yarn start
 
 ### Dockering 🐳
 
-**\_NOTE: this steps below is assume that you are already have a running PostgreSQL instance.\_\_**
+**_NOTE: this steps below is assume that you are already have a running PostgreSQL instance._**
 
 #### Using Dockerfile
 

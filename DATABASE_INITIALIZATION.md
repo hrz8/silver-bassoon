@@ -82,7 +82,7 @@ Once you have the `KEY`, run this command:
 OPEN_AI_KEY=your-key go run cmd/gen/main.go -new
 ```
 
-Note: This process may take a longer time as it will generate the provided seed data that will be inserted.
+**_Note: This process may take a longer time as it will generate the provided seed data that will be inserted._**
 
 ### Run Migrations
 
