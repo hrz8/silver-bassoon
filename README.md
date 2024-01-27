@@ -10,6 +10,7 @@
 - [How to Run 👟](#how-to-run-)
   - [Run Locally 🏃](#run-locally-)
   - [Dockering 🐳](#dockering-)
+    - [Docker Compose](#using-docker-compose-Recommended)
 
 ## Stack used 🥞
 
@@ -168,7 +169,7 @@ docker run -d \
     silver-bassoon/frontend
 ```
 
-#### Using docker-compose
+#### Using docker-compose (Recommended)
 
 By using `docker compose`, you are not required to have PostgreSQL running, and you are not required to run the migration as well. Everything will be done automatically, encapsulated.
 
