@@ -56,3 +56,4 @@ Thumbs.db
 *.wmv
 
 _migrations_back/
+coverage/

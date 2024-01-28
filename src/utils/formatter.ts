@@ -16,3 +16,6 @@ export const sumAndFormat = (values: string[]): string => {
 
   return `$${sum.toFixed(2)}`;
 };
+
+export const browserUtcOffset = (): string =>
+  formatUtcOffset(new Date().getTimezoneOffset());

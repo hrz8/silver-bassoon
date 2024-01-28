@@ -34,6 +34,10 @@
     "src/**/*.tsx",
     "src/**/*.vue"
   ],
+  "exclude": [
+    "./node_modules/*",
+    "./node_modules/@types"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

@@ -6,7 +6,7 @@ import {computed, Ref, ref, watchEffect} from 'vue';
 
 import {Order} from '../types/order';
 import {Response} from '../types/response';
-import {Server} from '../utils/axios';
+import {ServerClient} from '../utils/axios';
 import {sumAndFormat} from '../utils/formatter';
 
 const keyword = ref('');
@@ -41,9 +41,8 @@ const queryParams = computed(() => {
 });
 
 const fetchOrders = async (): Promise<void> => {
-  console.info(filterDate);
   try {
-    const res = await Server.get<Response<Order[]>>(
+    const res = await ServerClient().get<Response<Order[]>>(
       `api/orders?${queryParams.value}`,
     );
 
