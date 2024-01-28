@@ -176,3 +176,17 @@ By using `docker compose`, you are not required to have PostgreSQL running, and 
 ```bash
 docker compose up -d
 ```
+
+## Testing
+
+### Backend Unit Testing
+
+```bash
+go test -v ./...
+```
+
+### Frontend Unit Testing
+
+```bash
+yarn test
+```
