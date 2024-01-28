@@ -13,7 +13,7 @@ To initiate the Database from `.csv` using script (Golang), run this:
 DATABASE_URL=postgres://user:password@ip:5432/dbname ./initdb.sh
 ```
 
-## Initialize the Database (Advance Mode - Recommended)
+## Initialize the Database (Advance Mode - With AI - Recommended)
 
 **_NOTE: If you've done the short mode, you need to cleanup your db first, and then run this:_**
 
