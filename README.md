@@ -11,6 +11,9 @@
   - [Run Locally 🏃](#run-locally-)
   - [Dockering 🐳](#dockering-)
     - [Docker Compose](#using-docker-compose-Recommended)
+- [Testing 🧪](#testing-)
+  - [Golang](#backend-unit-testing)
+  - [VueJS](#frontend-unit-testing)
 
 ## Stack used 🥞
 
@@ -177,7 +180,7 @@ By using `docker compose`, you are not required to have PostgreSQL running, and 
 docker compose up -d
 ```
 
-## Testing
+## Testing 🧪
 
 ### Backend Unit Testing
 
