@@ -1,8 +1,6 @@
 {
   "go.lintTool": "golangci-lint",
-  "go.lintFlags": [
-    "--fast"
-  ],
+  "go.lintFlags": ["--fast"],
   "prettier.singleQuote": true,
   "prettier.trailingComma": "es5",
   "editor.formatOnSave": true,
@@ -11,12 +9,7 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "npm.packageManager": "yarn",
   "eslint.enable": true,
-  "eslint.validate": [
-    "vue",
-    "html",
-    "javascript",
-    "typescript"
-  ],
+  "eslint.validate": ["vue", "html", "javascript", "typescript"],
   "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -31,7 +24,7 @@
   },
   "prettier.configPath": ".prettierrc",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
+    "source.fixAll.eslint": "explicit"
+  }
   // "editor.tabSize": 2
 }

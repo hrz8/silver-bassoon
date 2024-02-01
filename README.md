@@ -121,6 +121,13 @@ VITE_SERVER_URL=http://localhost:3980 yarn start
 #    └──────────────────────────────────────┘
 ```
 
+Or:
+
+```bash
+VITE_SERVER_URL=http://localhost:3980 yarn start:dev
+# Open: http://localhost:5173/
+```
+
 ### Dockering 🐳
 
 #### Using Dockerfile
